@@ -3,6 +3,13 @@
 This changelog tracks the Createrington Skin API Python SDK. A release publishes
 to PyPI when a version bump is merged to `main`.
 
+## v2.3.3
+
+### Fixed
+
+- Repository links in the package metadata now point to the public GitHub
+  repository instead of the internal Gitea host.
+
 ## v2.3.2
 
 ### Changed
