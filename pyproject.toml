@@ -29,7 +29,7 @@ dependencies = ["httpx>=0.27"]
 
 [project.urls]
 Homepage = "https://api.createrington.com"
-Repository = "https://gitea.matejhoz.com/matejhozlar/skin-api-python"
+Repository = "https://github.com/matejhozlar/skin-api-python"
 
 [project.optional-dependencies]
 dev = [
