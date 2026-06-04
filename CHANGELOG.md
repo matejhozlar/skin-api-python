@@ -1,7 +1,17 @@
 # createrington-skin-api (Python)
 
-This changelog tracks the Python SDK only. It is versioned and released
-independently of the rest of the repo, via `sdk-py-v<version>` git tags.
+This changelog tracks the Createrington Skin API Python SDK. A release publishes
+to PyPI when a version bump is merged to `main`.
+
+## v2.3.2
+
+### Changed
+
+- Relicensed under Apache-2.0 (previously unlicensed). The public API is unchanged.
+- The SDK now lives in its own open-source repository, and `_poses.py` is
+  generated from the published OpenAPI document rather than from server-side files.
+- Version aligned with the other Createrington Skin API SDKs (.NET, TypeScript)
+  so all clients share one version line.
 
 ## v1.3.1
 
