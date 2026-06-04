@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/matejhozlar/skin-api-python/main/assets/og-card.png" alt="Createrington Skin API - Python client" />
+</p>
+
 # createrington-skin-api
 
 Official Python client for the Createrington Skin API. Renders Minecraft
