@@ -1,0 +1,70 @@
+name: Bug report
+description: Something in the Python client behaves incorrectly
+title: "Bug: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. A couple of notes first:
+
+        - This is the **client library**. If the API returns a wrong or missing
+          image for a valid request (rendering, a pose looking off), that is a
+          service issue, not an SDK bug, and belongs upstream.
+        - Never paste your API key, bearer token, or other secrets here.
+  - type: input
+    id: sdk-version
+    attributes:
+      label: SDK version
+      description: The `createrington-skin-api` PyPI package version.
+      placeholder: "2.3.2"
+    validations:
+      required: true
+  - type: input
+    id: python-version
+    attributes:
+      label: Python version
+      description: The Python version you run against.
+      placeholder: "3.12"
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      placeholder: "Windows 11, Ubuntu 24.04, ..."
+    validations:
+      required: false
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What did you call, and what went wrong?
+      placeholder: |
+        client.render("wave", uuid="...") raised instead of returning bytes.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Minimal repro
+      description: A small snippet that reproduces it. Redact your API key.
+      render: python
+    validations:
+      required: false
+  - type: textarea
+    id: exception
+    attributes:
+      label: Exception details
+      description: >
+        If a SkinApiError was raised, include its code, status, and
+        retry_after_ms, plus the traceback.
+    validations:
+      required: false

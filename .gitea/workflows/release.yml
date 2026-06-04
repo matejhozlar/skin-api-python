@@ -1,0 +1,46 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Build and check only; skip the upload to PyPI"
+        required: false
+        default: "false"
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: hetzner
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Refresh poses from the live OpenAPI document
+        run: python scripts/generate_poses.py || echo "spec refresh failed; using committed _poses.py" >&2
+
+      - name: Install build tooling
+        run: pip install build twine
+
+      - name: Build
+        run: python -m build
+
+      - name: Check
+        run: twine check dist/*
+
+      - name: Upload to PyPI
+        if: ${{ inputs.dry_run != 'true' }}
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+        run: twine upload --skip-existing dist/*
