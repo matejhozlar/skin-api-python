@@ -116,7 +116,7 @@ class SkinApiClient:
         while True:
             try:
                 response = self._client.request(
-                    "POST",
+                    prepared.method,
                     prepared.url,
                     params=prepared.params,
                     json=prepared.json,
