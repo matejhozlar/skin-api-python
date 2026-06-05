@@ -3,6 +3,16 @@
 This changelog tracks the Createrington Skin API Python SDK. A release publishes
 to PyPI when a version bump is merged to `main`.
 
+## v2.4.0
+
+### Changed
+
+- `render()` (sync and async) now calls the API over HTTP `GET` for `uuid` and
+  `username` sources (the identifier rides in the query string), so these renders
+  are plain cacheable URLs. `skin_url`, `skin_base64`, and PNG uploads still use
+  `POST`. The public API is unchanged and the server supports both, so this is
+  non-breaking.
+
 ## v2.3.3
 
 ### Fixed
