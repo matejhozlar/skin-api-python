@@ -116,7 +116,7 @@ class AsyncSkinApiClient:
         while True:
             try:
                 response = await self._client.request(
-                    "POST",
+                    prepared.method,
                     prepared.url,
                     params=prepared.params,
                     json=prepared.json,

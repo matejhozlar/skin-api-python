@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import random
 from dataclasses import dataclass
+from typing import Literal
 
 DEFAULT_BASE_URL = "https://api.createrington.com"
 DEFAULT_TIMEOUT = 30.0
@@ -20,16 +21,21 @@ _RETRY_AFTER_MAX_MS = 60_000
 
 # render() keyword name -> JSON body field name. png is multipart, not JSON.
 _JSON_SOURCE_FIELDS: dict[str, str] = {
-    "uuid": "uuid",
-    "username": "username",
     "skin_url": "skinUrl",
     "skin_base64": "skinBase64",
+}
+
+# render() keyword name -> query param name for GET sources.
+_QUERY_SOURCE_FIELDS: dict[str, str] = {
+    "uuid": "uuid",
+    "username": "username",
 }
 
 
 @dataclass(frozen=True)
 class PreparedRender:
     url: str
+    method: Literal["GET", "POST"]
     params: dict[str, str]
     json: dict[str, str] | None = None
     files: dict[str, tuple[str, bytes, str]] | None = None
@@ -108,6 +114,7 @@ def prepare_render(
         assert png is not None
         return PreparedRender(
             url=url,
+            method="POST",
             params=params,
             files={"skin": ("skin.png", bytes(png), "image/png")},
         )
@@ -119,8 +126,14 @@ def prepare_render(
         "skin_base64": skin_base64,
     }[name]
     assert value is not None
+
+    if name in _QUERY_SOURCE_FIELDS:
+        params[_QUERY_SOURCE_FIELDS[name]] = value
+        return PreparedRender(url=url, method="GET", params=params)
+
     return PreparedRender(
         url=url,
+        method="POST",
         params=params,
         json={_JSON_SOURCE_FIELDS[name]: value},
     )

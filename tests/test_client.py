@@ -67,30 +67,46 @@ def test_default_base_url_is_createrington() -> None:
     assert DEFAULT_BASE_URL == "https://api.createrington.com"
 
 
-def test_sends_bearer_auth_and_json_body_for_uuid() -> None:
+def test_sends_bearer_auth_and_get_query_for_uuid() -> None:
     captured: list[httpx.Request] = []
     client = make_client(png_handler(captured))
     out = client.render("wave", uuid="uuid-1", slim=True, width=200, height=300)
     request = captured[0]
     assert out == PNG_BYTES
-    assert request.method == "POST"
+    assert request.method == "GET"
     assert request.url.path == "/v1/render"
     assert dict(request.url.params) == {
         "pose": "wave",
         "slim": "true",
         "width": "200",
         "height": "300",
+        "uuid": "uuid-1",
     }
     assert request.headers["authorization"] == "Bearer test-key"
-    assert request.headers["content-type"] == "application/json"
-    assert json.loads(request.content) == {"uuid": "uuid-1"}
+    assert request.content == b""
+
+
+def test_sends_get_query_for_username() -> None:
+    captured: list[httpx.Request] = []
+    client = make_client(png_handler(captured))
+    out = client.render("wave", username="Steve")
+    request = captured[0]
+    assert out == PNG_BYTES
+    assert request.method == "GET"
+    assert request.url.path == "/v1/render"
+    assert dict(request.url.params) == {"pose": "wave", "username": "Steve"}
+    assert request.content == b""
 
 
 def test_outline_true_sends_outline_param() -> None:
     captured: list[httpx.Request] = []
     client = make_client(png_handler(captured))
     client.render("wave", uuid="uuid-1", outline=True)
-    assert dict(captured[0].url.params) == {"pose": "wave", "outline": "true"}
+    assert dict(captured[0].url.params) == {
+        "pose": "wave",
+        "outline": "true",
+        "uuid": "uuid-1",
+    }
 
 
 def test_outline_omitted_when_false() -> None:
@@ -128,16 +144,18 @@ def test_skin_url_maps_to_camel_case_field() -> None:
     captured: list[httpx.Request] = []
     client = make_client(png_handler(captured))
     client.render("wave", skin_url="https://example.com/skin.png")
-    assert json.loads(captured[0].content) == {
-        "skinUrl": "https://example.com/skin.png"
-    }
+    request = captured[0]
+    assert request.method == "POST"
+    assert json.loads(request.content) == {"skinUrl": "https://example.com/skin.png"}
 
 
 def test_skin_base64_maps_to_camel_case_field() -> None:
     captured: list[httpx.Request] = []
     client = make_client(png_handler(captured))
     client.render("wave", skin_base64="AAAA")
-    assert json.loads(captured[0].content) == {"skinBase64": "AAAA"}
+    request = captured[0]
+    assert request.method == "POST"
+    assert json.loads(request.content) == {"skinBase64": "AAAA"}
 
 
 def test_no_source_raises_value_error() -> None:
