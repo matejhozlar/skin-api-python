@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 from typing import Callable
 
 import httpx
@@ -32,28 +31,45 @@ def make_client(handler: Handler, **kwargs: object) -> AsyncSkinApiClient:
     )
 
 
-async def test_sends_bearer_auth_and_json_body_for_uuid() -> None:
+async def test_sends_bearer_auth_and_get_query_for_uuid() -> None:
     captured: list[httpx.Request] = []
     async with make_client(png_handler(captured)) as client:
         out = await client.render("wave", uuid="uuid-1", slim=False, width=128)
     request = captured[0]
     assert out == PNG_BYTES
-    assert request.method == "POST"
+    assert request.method == "GET"
     assert request.url.path == "/v1/render"
     assert dict(request.url.params) == {
         "pose": "wave",
         "slim": "false",
         "width": "128",
+        "uuid": "uuid-1",
     }
     assert request.headers["authorization"] == "Bearer test-key"
-    assert json.loads(request.content) == {"uuid": "uuid-1"}
+    assert request.content == b""
+
+
+async def test_sends_get_query_for_username() -> None:
+    captured: list[httpx.Request] = []
+    async with make_client(png_handler(captured)) as client:
+        out = await client.render("wave", username="Steve")
+    request = captured[0]
+    assert out == PNG_BYTES
+    assert request.method == "GET"
+    assert request.url.path == "/v1/render"
+    assert dict(request.url.params) == {"pose": "wave", "username": "Steve"}
+    assert request.content == b""
 
 
 async def test_outline_true_sends_outline_param() -> None:
     captured: list[httpx.Request] = []
     async with make_client(png_handler(captured)) as client:
         await client.render("wave", uuid="uuid-1", outline=True)
-    assert dict(captured[0].url.params) == {"pose": "wave", "outline": "true"}
+    assert dict(captured[0].url.params) == {
+        "pose": "wave",
+        "outline": "true",
+        "uuid": "uuid-1",
+    }
 
 
 async def test_outline_omitted_by_default() -> None:
