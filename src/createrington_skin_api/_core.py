@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import random
 from dataclasses import dataclass
+from typing import Literal
 
 DEFAULT_BASE_URL = "https://api.createrington.com"
 DEFAULT_TIMEOUT = 30.0
@@ -34,7 +35,7 @@ _QUERY_SOURCE_FIELDS: dict[str, str] = {
 @dataclass(frozen=True)
 class PreparedRender:
     url: str
-    method: str
+    method: Literal["GET", "POST"]
     params: dict[str, str]
     json: dict[str, str] | None = None
     files: dict[str, tuple[str, bytes, str]] | None = None
