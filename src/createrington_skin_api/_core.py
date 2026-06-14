@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import random
 from dataclasses import dataclass
-from typing import Literal
+from typing import Literal, TypedDict
 
 DEFAULT_BASE_URL = "https://api.createrington.com"
 DEFAULT_TIMEOUT = 30.0
@@ -33,7 +33,7 @@ _QUERY_SOURCE_FIELDS: dict[str, str] = {
 
 
 @dataclass(frozen=True)
-class PreparedRender:
+class PreparedRequest:
     url: str
     method: Literal["GET", "POST"]
     params: dict[str, str]
@@ -42,6 +42,7 @@ class PreparedRender:
 
 
 def _select_source(
+    caller: str,
     *,
     uuid: str | None,
     username: str | None,
@@ -63,15 +64,55 @@ def _select_source(
 
     if not given:
         raise ValueError(
-            "render() requires exactly one skin source: pass one of "
+            f"{caller}() requires exactly one skin source: pass one of "
             "uuid, username, skin_url, skin_base64, or png"
         )
     if len(given) > 1:
         raise ValueError(
-            "render() accepts exactly one skin source, but several were given: "
+            f"{caller}() accepts exactly one skin source, but several were given: "
             + ", ".join(given)
         )
     return given[0]
+
+
+def _prepare_source(
+    url: str,
+    name: str,
+    *,
+    params: dict[str, str],
+    uuid: str | None,
+    username: str | None,
+    skin_url: str | None,
+    skin_base64: str | None,
+    png: bytes | bytearray | memoryview | None,
+) -> PreparedRequest:
+    if name == "png":
+        assert png is not None
+        return PreparedRequest(
+            url=url,
+            method="POST",
+            params=params,
+            files={"skin": ("skin.png", bytes(png), "image/png")},
+        )
+
+    value = {
+        "uuid": uuid,
+        "username": username,
+        "skin_url": skin_url,
+        "skin_base64": skin_base64,
+    }[name]
+    assert value is not None
+
+    if name in _QUERY_SOURCE_FIELDS:
+        params[_QUERY_SOURCE_FIELDS[name]] = value
+        return PreparedRequest(url=url, method="GET", params=params)
+
+    return PreparedRequest(
+        url=url,
+        method="POST",
+        params=params,
+        json={_JSON_SOURCE_FIELDS[name]: value},
+    )
 
 
 def prepare_render(
@@ -87,8 +128,9 @@ def prepare_render(
     outline: bool | None,
     width: int | None,
     height: int | None,
-) -> PreparedRender:
+) -> PreparedRequest:
     name = _select_source(
+        "render",
         uuid=uuid,
         username=username,
         skin_url=skin_url,
@@ -108,34 +150,69 @@ def prepare_render(
     if height is not None:
         params["height"] = str(height)
 
-    url = f"{base_url}/v1/render"
-
-    if name == "png":
-        assert png is not None
-        return PreparedRender(
-            url=url,
-            method="POST",
-            params=params,
-            files={"skin": ("skin.png", bytes(png), "image/png")},
-        )
-
-    value = {
-        "uuid": uuid,
-        "username": username,
-        "skin_url": skin_url,
-        "skin_base64": skin_base64,
-    }[name]
-    assert value is not None
-
-    if name in _QUERY_SOURCE_FIELDS:
-        params[_QUERY_SOURCE_FIELDS[name]] = value
-        return PreparedRender(url=url, method="GET", params=params)
-
-    return PreparedRender(
-        url=url,
-        method="POST",
+    return _prepare_source(
+        f"{base_url}/v1/render",
+        name,
         params=params,
-        json={_JSON_SOURCE_FIELDS[name]: value},
+        uuid=uuid,
+        username=username,
+        skin_url=skin_url,
+        skin_base64=skin_base64,
+        png=png,
+    )
+
+
+class AvatarOptions(TypedDict, total=False):
+    """Optional avatar tuning. Unset values fall back to server defaults.
+
+    Attributes:
+        size: Output edge length in pixels; the image is square. Default 64,
+            clamped 8..512.
+        overlay: Composite the hat layer over the face. On by default; omitted
+            from the request unless set to ``False``.
+    """
+
+    size: int
+    overlay: bool
+
+
+def prepare_avatar(
+    base_url: str,
+    *,
+    uuid: str | None,
+    username: str | None,
+    skin_url: str | None,
+    skin_base64: str | None,
+    png: bytes | bytearray | memoryview | None,
+    size: int | None,
+    overlay: bool | None,
+) -> PreparedRequest:
+    name = _select_source(
+        "avatar",
+        uuid=uuid,
+        username=username,
+        skin_url=skin_url,
+        skin_base64=skin_base64,
+        png=png,
+    )
+
+    params: dict[str, str] = {}
+    if size is not None:
+        params["size"] = str(size)
+    # overlay defaults ON server-side; omit when on so the avatar cache key for
+    # default calls is unchanged.
+    if overlay is False:
+        params["overlay"] = "false"
+
+    return _prepare_source(
+        f"{base_url}/v1/avatar",
+        name,
+        params=params,
+        uuid=uuid,
+        username=username,
+        skin_url=skin_url,
+        skin_base64=skin_base64,
+        png=png,
     )
 
 

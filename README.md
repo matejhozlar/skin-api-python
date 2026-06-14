@@ -106,6 +106,35 @@ from createrington_skin_api import random_pose
 png = client.render(random_pose(), uuid="069a79f444e94726a5befca90e38aaf5")
 ```
 
+## `avatar`
+
+```python
+client.avatar(
+    *,
+    # exactly one skin source (same as render):
+    uuid=None,             # Mojang UUID, resolved server-side
+    username=None,         # Mojang username, resolved server-side
+    skin_url=None,         # public URL to a 64x64 PNG
+    skin_base64=None,      # base64-encoded 64x64 PNG (data URL prefix optional)
+    png=None,              # raw 64x64 PNG bytes, sent as multipart/form-data
+    # options:
+    size=None,             # output edge length in px; default 64 (8..512), square
+    overlay=None,          # composite the hat layer; on by default
+) -> bytes
+```
+
+Returns a flat 2D front-view avatar: a square PNG of the skin's face with the
+hat layer composited on top. Exactly one skin source must be supplied, the same
+way as `render`; passing none or more than one raises `ValueError`. `overlay`
+is on by default and the request omits the parameter unless you pass
+`overlay=False`.
+
+```python
+png = client.avatar(uuid="069a79f444e94726a5befca90e38aaf5", size=128)
+```
+
+The async client exposes `await client.avatar(...)` with the same arguments.
+
 ## Errors
 
 Every non-2xx response (and network/timeout failures) raises `SkinApiError`:
