@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from typing import Callable
 
 import httpx
@@ -92,6 +93,61 @@ async def test_no_source_raises_value_error() -> None:
     async with make_client(png_handler([])) as client:
         with pytest.raises(ValueError, match="requires exactly one skin source"):
             await client.render("wave")
+
+
+async def test_avatar_sends_get_query_for_uuid_with_options() -> None:
+    captured: list[httpx.Request] = []
+    async with make_client(png_handler(captured)) as client:
+        out = await client.avatar(uuid="uuid-1", size=128)
+    request = captured[0]
+    assert out == PNG_BYTES
+    assert request.method == "GET"
+    assert request.url.path == "/v1/avatar"
+    assert dict(request.url.params) == {"size": "128", "uuid": "uuid-1"}
+    assert request.headers["authorization"] == "Bearer test-key"
+    assert request.content == b""
+
+
+async def test_avatar_overlay_omitted_by_default() -> None:
+    captured: list[httpx.Request] = []
+    async with make_client(png_handler(captured)) as client:
+        await client.avatar(username="Steve")
+    assert dict(captured[0].url.params) == {"username": "Steve"}
+
+
+async def test_avatar_overlay_false_sends_param() -> None:
+    captured: list[httpx.Request] = []
+    async with make_client(png_handler(captured)) as client:
+        await client.avatar(uuid="uuid-1", overlay=False)
+    assert dict(captured[0].url.params) == {"overlay": "false", "uuid": "uuid-1"}
+
+
+async def test_avatar_png_source_uses_multipart() -> None:
+    captured: list[httpx.Request] = []
+    async with make_client(png_handler(captured)) as client:
+        await client.avatar(png=PNG_BYTES)
+    request = captured[0]
+    assert request.method == "POST"
+    assert request.url.path == "/v1/avatar"
+    assert request.headers["content-type"].startswith("multipart/form-data")
+    assert PNG_BYTES in request.content
+
+
+async def test_avatar_skin_url_maps_to_camel_case_field() -> None:
+    captured: list[httpx.Request] = []
+    async with make_client(png_handler(captured)) as client:
+        await client.avatar(skin_url="https://example.com/skin.png")
+    request = captured[0]
+    assert request.method == "POST"
+    assert json.loads(request.content) == {"skinUrl": "https://example.com/skin.png"}
+
+
+async def test_avatar_no_source_raises_value_error() -> None:
+    async with make_client(png_handler([])) as client:
+        with pytest.raises(
+            ValueError, match="avatar.. requires exactly one skin source"
+        ):
+            await client.avatar()
 
 
 async def test_normalizes_upper_snake_error_code() -> None:

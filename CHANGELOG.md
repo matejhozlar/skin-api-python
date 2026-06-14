@@ -3,6 +3,22 @@
 This changelog tracks the Createrington Skin API Python SDK. A release publishes
 to PyPI when a version bump is merged to `main`.
 
+## v2.5.0
+
+### Added
+
+- `avatar()` (sync and async): returns a flat 2D front-view avatar PNG, a square
+  image of the skin's face with the hat layer composited on top. Takes the same
+  skin sources as `render()` (`uuid`, `username`, `skin_url`, `skin_base64`, or a
+  PNG upload; exactly one) and two options, `size` (default 64, 8..512) and
+  `overlay` (on by default; omitted from the request unless set to `False`).
+  `uuid`/`username` ride in the query string over `GET` so responses are
+  cacheable; other sources `POST`. `AvatarOptions` is exported as the options
+  type. Additive and non-breaking.
+- The generated pose list now includes `idle` (regenerated from the published
+  OpenAPI document). `render` already accepts any pose string, so this only adds
+  the name to `Poses`, `KNOWN_POSES`, and `KnownPose`.
+
 ## v2.4.0
 
 ### Changed
