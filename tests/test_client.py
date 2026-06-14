@@ -170,6 +170,106 @@ def test_multiple_sources_raise_value_error() -> None:
         client.render("wave", uuid="x", username="y")
 
 
+def test_avatar_sends_get_query_for_uuid_with_options() -> None:
+    captured: list[httpx.Request] = []
+    client = make_client(png_handler(captured))
+    out = client.avatar(uuid="uuid-1", size=128)
+    request = captured[0]
+    assert out == PNG_BYTES
+    assert request.method == "GET"
+    assert request.url.path == "/v1/avatar"
+    assert dict(request.url.params) == {"size": "128", "uuid": "uuid-1"}
+    assert request.headers["authorization"] == "Bearer test-key"
+    assert request.content == b""
+
+
+def test_avatar_sends_get_query_for_username() -> None:
+    captured: list[httpx.Request] = []
+    client = make_client(png_handler(captured))
+    client.avatar(username="Steve")
+    request = captured[0]
+    assert request.method == "GET"
+    assert request.url.path == "/v1/avatar"
+    assert dict(request.url.params) == {"username": "Steve"}
+
+
+def test_avatar_overlay_omitted_by_default() -> None:
+    captured: list[httpx.Request] = []
+    client = make_client(png_handler(captured))
+    client.avatar(uuid="uuid-1")
+    assert dict(captured[0].url.params) == {"uuid": "uuid-1"}
+
+
+def test_avatar_overlay_false_sends_param() -> None:
+    captured: list[httpx.Request] = []
+    client = make_client(png_handler(captured))
+    client.avatar(uuid="uuid-1", overlay=False)
+    assert dict(captured[0].url.params) == {"overlay": "false", "uuid": "uuid-1"}
+
+
+def test_avatar_overlay_true_is_omitted() -> None:
+    captured: list[httpx.Request] = []
+    client = make_client(png_handler(captured))
+    client.avatar(uuid="uuid-1", overlay=True)
+    assert "overlay" not in dict(captured[0].url.params)
+
+
+def test_avatar_png_source_uses_multipart() -> None:
+    captured: list[httpx.Request] = []
+    client = make_client(png_handler(captured))
+    client.avatar(png=PNG_BYTES, size=64)
+    request = captured[0]
+    assert request.method == "POST"
+    assert request.url.path == "/v1/avatar"
+    assert dict(request.url.params) == {"size": "64"}
+    assert request.headers["content-type"].startswith("multipart/form-data")
+    assert b'name="skin"' in request.content
+    assert PNG_BYTES in request.content
+
+
+def test_avatar_skin_url_maps_to_camel_case_field() -> None:
+    captured: list[httpx.Request] = []
+    client = make_client(png_handler(captured))
+    client.avatar(skin_url="https://example.com/skin.png")
+    request = captured[0]
+    assert request.method == "POST"
+    assert json.loads(request.content) == {"skinUrl": "https://example.com/skin.png"}
+
+
+def test_avatar_skin_base64_maps_to_camel_case_field() -> None:
+    captured: list[httpx.Request] = []
+    client = make_client(png_handler(captured))
+    client.avatar(skin_base64="AAAA")
+    request = captured[0]
+    assert request.method == "POST"
+    assert json.loads(request.content) == {"skinBase64": "AAAA"}
+
+
+def test_avatar_no_source_raises_value_error() -> None:
+    client = make_client(png_handler([]))
+    with pytest.raises(ValueError, match="avatar.. requires exactly one skin source"):
+        client.avatar()
+
+
+def test_avatar_multiple_sources_raise_value_error() -> None:
+    client = make_client(png_handler([]))
+    with pytest.raises(ValueError, match="avatar.. accepts exactly one skin source"):
+        client.avatar(uuid="x", username="y")
+
+
+def test_avatar_propagates_error_response() -> None:
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(
+            404, json={"error": {"code": "NOT_FOUND", "message": "no skin"}}
+        )
+
+    client = make_client(handler, retries=0)
+    with pytest.raises(SkinApiError) as info:
+        client.avatar(uuid="x")
+    assert info.value.code == "not_found"
+    assert info.value.status == 404
+
+
 def test_normalizes_upper_snake_error_code() -> None:
     def handler(request: httpx.Request) -> httpx.Response:
         return httpx.Response(

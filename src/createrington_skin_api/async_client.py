@@ -13,7 +13,9 @@ from ._core import (
     DEFAULT_RETRIES,
     DEFAULT_TIMEOUT,
     DEFAULT_USER_AGENT,
+    PreparedRequest,
     is_retryable_status,
+    prepare_avatar,
     prepare_render,
     retry_delay_seconds,
 )
@@ -111,7 +113,56 @@ class AsyncSkinApiClient:
             width=width,
             height=height,
         )
+        return await self._send(prepared)
 
+    async def avatar(
+        self,
+        *,
+        uuid: str | None = None,
+        username: str | None = None,
+        skin_url: str | None = None,
+        skin_base64: str | None = None,
+        png: bytes | bytearray | memoryview | None = None,
+        size: int | None = None,
+        overlay: bool | None = None,
+    ) -> bytes:
+        """Return a flat 2D front-view avatar PNG for the given skin source.
+
+        The avatar is a square PNG of the skin's face with the hat layer
+        composited on top. Exactly one skin source must be supplied. Retries
+        ``429``/``502``/``503``/``504`` and network errors per ``retries``,
+        honouring a ``429`` ``retryAfterMs`` when present.
+
+        Args:
+            uuid: Mojang UUID; the official skin is resolved server-side.
+            username: Mojang username; the current skin is resolved server-side.
+            skin_url: Public URL to a 64x64 PNG skin.
+            skin_base64: Base64-encoded 64x64 PNG (data URL prefix optional).
+            png: Raw 64x64 PNG bytes, sent as ``multipart/form-data``.
+            size: Output edge length in pixels (default 64, clamped 8..512).
+            overlay: Composite the hat layer over the face. On by default; the
+                request omits the parameter unless set to ``False``.
+
+        Returns:
+            The avatar PNG image bytes.
+
+        Raises:
+            ValueError: If not exactly one skin source is provided.
+            SkinApiError: On a non-2xx response, network error, or timeout.
+        """
+        prepared = prepare_avatar(
+            self._base_url,
+            uuid=uuid,
+            username=username,
+            skin_url=skin_url,
+            skin_base64=skin_base64,
+            png=png,
+            size=size,
+            overlay=overlay,
+        )
+        return await self._send(prepared)
+
+    async def _send(self, prepared: PreparedRequest) -> bytes:
         attempt = 0
         while True:
             try:
