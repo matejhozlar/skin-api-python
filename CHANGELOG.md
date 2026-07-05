@@ -3,6 +3,20 @@
 This changelog tracks the Createrington Skin API Python SDK. A release publishes
 to PyPI when a version bump is merged to `main`.
 
+## v2.6.0
+
+### Added
+
+- `resolve()` (sync and async): resolves a player identity in either direction
+  over `GET /v1/resolve`. Pass `uuid` to get the current username or `username`
+  to get the UUID (exactly one; passing none or both raises `ValueError`).
+  Returns a `ResolvedPlayer` dataclass with `uuid` (always the canonical dashed
+  lowercase form; input may be dashed or compact) and `username` (canonical
+  casing; `None` only when a degraded fallback provider could not supply the
+  name). `ResolvedPlayer` is exported. Lookups share the server's resolution
+  cache, so a recent name change can take up to a day to appear, and they do
+  not count toward the image volume quota. Additive and non-breaking.
+
 ## v2.5.0
 
 ### Added

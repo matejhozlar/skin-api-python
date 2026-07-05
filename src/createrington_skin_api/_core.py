@@ -4,6 +4,8 @@ import random
 from dataclasses import dataclass
 from typing import Literal, TypedDict
 
+from .errors import SkinApiError
+
 DEFAULT_BASE_URL = "https://api.createrington.com"
 DEFAULT_TIMEOUT = 30.0
 DEFAULT_RETRIES = 2
@@ -213,6 +215,62 @@ def prepare_avatar(
         skin_url=skin_url,
         skin_base64=skin_base64,
         png=png,
+    )
+
+
+@dataclass(frozen=True)
+class ResolvedPlayer:
+    """A resolved player identity.
+
+    Attributes:
+        uuid: Canonical dashed lowercase UUID.
+        username: Current username with canonical casing. None only when a
+            degraded fallback provider could not supply the name.
+    """
+
+    uuid: str
+    username: str | None
+
+
+def prepare_resolve(
+    base_url: str,
+    *,
+    uuid: str | None,
+    username: str | None,
+) -> PreparedRequest:
+    if uuid is None and username is None:
+        raise ValueError(
+            "resolve() requires exactly one identifier: pass uuid or username"
+        )
+    if uuid is not None and username is not None:
+        raise ValueError(
+            "resolve() accepts exactly one identifier, "
+            "but both uuid and username were given"
+        )
+
+    params: dict[str, str] = {}
+    if uuid is not None:
+        params["uuid"] = uuid
+    if username is not None:
+        params["username"] = username
+
+    return PreparedRequest(
+        url=f"{base_url}/v1/resolve",
+        method="GET",
+        params=params,
+    )
+
+
+def parse_resolved_player(body: object, status: int) -> ResolvedPlayer:
+    if isinstance(body, dict):
+        uuid = body.get("uuid")
+        username = body.get("username")
+        if isinstance(uuid, str) and (username is None or isinstance(username, str)):
+            return ResolvedPlayer(uuid=uuid, username=username)
+    raise SkinApiError(
+        "Malformed resolve response from the server",
+        code="unknown",
+        status=status,
     )
 
 
