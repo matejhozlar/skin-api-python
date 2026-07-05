@@ -135,6 +135,36 @@ png = client.avatar(uuid="069a79f444e94726a5befca90e38aaf5", size=128)
 
 The async client exposes `await client.avatar(...)` with the same arguments.
 
+## `resolve`
+
+```python
+client.resolve(
+    *,
+    # exactly one identifier:
+    uuid=None,             # player UUID, dashed or compact
+    username=None,         # Minecraft username, case-insensitive
+) -> ResolvedPlayer
+```
+
+Resolves a player identity in either direction: pass `uuid` to get the current
+username, or `username` to get the UUID. Exactly one identifier must be
+supplied; passing none or both raises `ValueError`. Returns a `ResolvedPlayer`
+dataclass: `uuid` is always the canonical dashed lowercase form and `username`
+carries the canonical casing (`None` only when a degraded fallback provider
+could not supply the name). An unknown player raises `SkinApiError` with
+`code == "not_found"`.
+
+```python
+player = client.resolve(username="Notch")
+print(player.uuid)      # "069a79f4-44e9-4726-a5be-fca90e38aaf5"
+print(player.username)  # "Notch"
+```
+
+Lookups share the server's resolution cache, so a recent name change can take
+up to a day to appear. Resolutions do not count toward the image volume quota.
+
+The async client exposes `await client.resolve(...)` with the same arguments.
+
 ## Errors
 
 Every non-2xx response (and network/timeout failures) raises `SkinApiError`:

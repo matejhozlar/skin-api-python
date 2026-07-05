@@ -6,9 +6,10 @@ from typing import Callable
 import httpx
 import pytest
 
-from createrington_skin_api import AsyncSkinApiClient, SkinApiError
+from createrington_skin_api import AsyncSkinApiClient, ResolvedPlayer, SkinApiError
 
 PNG_BYTES = bytes([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00])
+RESOLVED_UUID = "069a79f4-44e9-4726-a5be-fca90e38aaf5"
 
 Handler = Callable[[httpx.Request], httpx.Response]
 
@@ -148,6 +149,66 @@ async def test_avatar_no_source_raises_value_error() -> None:
             ValueError, match="avatar.. requires exactly one skin source"
         ):
             await client.avatar()
+
+
+def profile_handler(
+    captured: list[httpx.Request], *, username: str | None = "Notch"
+) -> Handler:
+    def handler(request: httpx.Request) -> httpx.Response:
+        captured.append(request)
+        return httpx.Response(200, json={"uuid": RESOLVED_UUID, "username": username})
+
+    return handler
+
+
+async def test_resolve_sends_get_query_for_uuid() -> None:
+    captured: list[httpx.Request] = []
+    async with make_client(profile_handler(captured)) as client:
+        player = await client.resolve(uuid="069a79f444e94726a5befca90e38aaf5")
+    request = captured[0]
+    assert request.method == "GET"
+    assert request.url.path == "/v1/resolve"
+    assert dict(request.url.params) == {"uuid": "069a79f444e94726a5befca90e38aaf5"}
+    assert request.headers["authorization"] == "Bearer test-key"
+    assert request.content == b""
+    assert player == ResolvedPlayer(uuid=RESOLVED_UUID, username="Notch")
+
+
+async def test_resolve_sends_get_query_for_username() -> None:
+    captured: list[httpx.Request] = []
+    async with make_client(profile_handler(captured)) as client:
+        player = await client.resolve(username="notch")
+    assert dict(captured[0].url.params) == {"username": "notch"}
+    assert player.username == "Notch"
+
+
+async def test_resolve_parses_none_username() -> None:
+    captured: list[httpx.Request] = []
+    async with make_client(profile_handler(captured, username=None)) as client:
+        player = await client.resolve(uuid=RESOLVED_UUID)
+    assert player.uuid == RESOLVED_UUID
+    assert player.username is None
+
+
+async def test_resolve_no_identifier_raises_value_error() -> None:
+    async with make_client(profile_handler([])) as client:
+        with pytest.raises(
+            ValueError, match="resolve.. requires exactly one identifier"
+        ):
+            await client.resolve()
+
+
+async def test_resolve_propagates_not_found() -> None:
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(
+            404, json={"error": {"code": "NOT_FOUND", "message": "Unknown player"}}
+        )
+
+    async with make_client(handler, retries=0) as client:
+        with pytest.raises(SkinApiError) as info:
+            await client.resolve(username="nobody")
+    assert info.value.code == "not_found"
+    assert info.value.status == 404
 
 
 async def test_normalizes_upper_snake_error_code() -> None:

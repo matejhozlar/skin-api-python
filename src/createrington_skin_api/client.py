@@ -14,9 +14,12 @@ from ._core import (
     DEFAULT_TIMEOUT,
     DEFAULT_USER_AGENT,
     PreparedRequest,
+    ResolvedPlayer,
     is_retryable_status,
+    parse_resolved_player,
     prepare_avatar,
     prepare_render,
+    prepare_resolve,
     retry_delay_seconds,
 )
 from ._poses import KnownPose
@@ -113,7 +116,7 @@ class SkinApiClient:
             width=width,
             height=height,
         )
-        return self._send(prepared)
+        return self._send(prepared).content
 
     def avatar(
         self,
@@ -160,9 +163,43 @@ class SkinApiClient:
             size=size,
             overlay=overlay,
         )
-        return self._send(prepared)
+        return self._send(prepared).content
 
-    def _send(self, prepared: PreparedRequest) -> bytes:
+    def resolve(
+        self,
+        *,
+        uuid: str | None = None,
+        username: str | None = None,
+    ) -> ResolvedPlayer:
+        """Resolve a player identity by UUID or username.
+
+        Pass ``uuid`` to get the current username, or ``username`` to get the
+        UUID; exactly one of the two must be supplied. Lookups share the
+        server's resolution cache, so a recent name change can take up to a
+        day to appear; they do not count toward the image volume quota.
+        Retries ``429``/``502``/``503``/``504`` and network errors per
+        ``retries``, honouring a ``429`` ``retryAfterMs`` when present.
+
+        Args:
+            uuid: Player UUID, dashed or compact.
+            username: Minecraft username; the lookup is case-insensitive.
+
+        Returns:
+            The resolved identity: ``uuid`` is always the canonical dashed
+            lowercase form and ``username`` carries the canonical casing
+            (``None`` only when a degraded fallback provider could not supply
+            the name).
+
+        Raises:
+            ValueError: If not exactly one identifier is provided.
+            SkinApiError: On a non-2xx response, network error, or timeout
+                (an unknown player maps to ``code == "not_found"``).
+        """
+        prepared = prepare_resolve(self._base_url, uuid=uuid, username=username)
+        response = self._send(prepared)
+        return parse_resolved_player(_http.safe_json(response), response.status_code)
+
+    def _send(self, prepared: PreparedRequest) -> httpx.Response:
         attempt = 0
         while True:
             try:
@@ -195,7 +232,7 @@ class SkinApiClient:
                 ) from exc
 
             if response.is_success:
-                return response.content
+                return response
 
             status = response.status_code
             body = _http.safe_json(response)
