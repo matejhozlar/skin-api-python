@@ -198,6 +198,14 @@ async def test_resolve_no_identifier_raises_value_error() -> None:
             await client.resolve()
 
 
+async def test_resolve_both_identifiers_raise_value_error() -> None:
+    async with make_client(profile_handler([])) as client:
+        with pytest.raises(
+            ValueError, match="resolve.. accepts exactly one identifier"
+        ):
+            await client.resolve(uuid="x", username="y")
+
+
 async def test_resolve_propagates_not_found() -> None:
     def handler(request: httpx.Request) -> httpx.Response:
         return httpx.Response(
@@ -209,6 +217,17 @@ async def test_resolve_propagates_not_found() -> None:
             await client.resolve(username="nobody")
     assert info.value.code == "not_found"
     assert info.value.status == 404
+
+
+async def test_resolve_malformed_body_raises() -> None:
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(200, json={"nope": True})
+
+    async with make_client(handler, retries=0) as client:
+        with pytest.raises(SkinApiError) as info:
+            await client.resolve(uuid="x")
+    assert info.value.code == "unknown"
+    assert info.value.status == 200
 
 
 async def test_normalizes_upper_snake_error_code() -> None:

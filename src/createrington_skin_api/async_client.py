@@ -29,7 +29,8 @@ from .errors import SkinApiError, error_from_response
 class AsyncSkinApiClient:
     """Asynchronous client for the Createrington Skin API.
 
-    Renders Minecraft player skins into named poses and returns PNG bytes.
+    Renders Minecraft player skins into named poses and returns PNG bytes,
+    and resolves player identities between UUID and username.
     """
 
     def __init__(
@@ -193,7 +194,9 @@ class AsyncSkinApiClient:
         Raises:
             ValueError: If not exactly one identifier is provided.
             SkinApiError: On a non-2xx response, network error, or timeout
-                (an unknown player maps to ``code == "not_found"``).
+                (an unknown player maps to ``code == "not_found"``), or on a
+                2xx response whose body is not a valid profile
+                (``code == "unknown"`` with the 2xx status).
         """
         prepared = prepare_resolve(self._base_url, uuid=uuid, username=username)
         response = await self._send(prepared)
