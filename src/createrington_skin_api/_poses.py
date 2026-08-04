@@ -5,8 +5,12 @@ from __future__ import annotations
 from typing import Literal
 
 KNOWN_POSES: tuple[str, ...] = (
+    "britzel",
+    "callout",
     "cheer",
     "confidence",
+    "crossed",
+    "crouching",
     "curl",
     "cute",
     "dab",
@@ -18,6 +22,8 @@ KNOWN_POSES: tuple[str, ...] = (
     "idle",
     "idol",
     "kneel",
+    "lounge",
+    "mojavatar",
     "ninja",
     "point",
     "ponder",
@@ -31,8 +37,12 @@ KNOWN_POSES: tuple[str, ...] = (
 )
 
 KnownPose = Literal[
+    "britzel",
+    "callout",
     "cheer",
     "confidence",
+    "crossed",
+    "crouching",
     "curl",
     "cute",
     "dab",
@@ -44,6 +54,8 @@ KnownPose = Literal[
     "idle",
     "idol",
     "kneel",
+    "lounge",
+    "mojavatar",
     "ninja",
     "point",
     "ponder",
@@ -60,8 +72,12 @@ KnownPose = Literal[
 class Poses:
     """Named pose constants, for discoverability and autocompletion."""
 
+    britzel = "britzel"
+    callout = "callout"
     cheer = "cheer"
     confidence = "confidence"
+    crossed = "crossed"
+    crouching = "crouching"
     curl = "curl"
     cute = "cute"
     dab = "dab"
@@ -73,6 +89,8 @@ class Poses:
     idle = "idle"
     idol = "idol"
     kneel = "kneel"
+    lounge = "lounge"
+    mojavatar = "mojavatar"
     ninja = "ninja"
     point = "point"
     ponder = "ponder"
