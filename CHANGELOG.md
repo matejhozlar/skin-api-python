@@ -3,6 +3,17 @@
 This changelog tracks the Createrington Skin API Python SDK. A release publishes
 to PyPI when a version bump is merged to `main`.
 
+## v2.7.0
+
+### Added
+
+- Six new poses in the known pose list, refreshed from the published OpenAPI
+  contract: `britzel`, `callout`, `crossed`, `crouching`, `lounge`, and
+  `mojavatar` (29 poses total). The server already accepted them, since the
+  render methods take any pose string; this release adds the names to
+  `Poses` / `KNOWN_POSES` / `KnownPose` for static checking and completion.
+  Additive and non-breaking.
+
 ## v2.6.0
 
 ### Added
