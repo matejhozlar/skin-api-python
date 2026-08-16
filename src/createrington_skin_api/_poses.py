@@ -16,6 +16,7 @@ KNOWN_POSES: tuple[str, ...] = (
     "dab",
     "dead",
     "defeat",
+    "engineer",
     "friendship",
     "gaze",
     "handstand",
@@ -48,6 +49,7 @@ KnownPose = Literal[
     "dab",
     "dead",
     "defeat",
+    "engineer",
     "friendship",
     "gaze",
     "handstand",
@@ -83,6 +85,7 @@ class Poses:
     dab = "dab"
     dead = "dead"
     defeat = "defeat"
+    engineer = "engineer"
     friendship = "friendship"
     gaze = "gaze"
     handstand = "handstand"
