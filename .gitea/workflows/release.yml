@@ -30,7 +30,7 @@ jobs:
         run: python scripts/generate_poses.py || echo "spec refresh failed; using committed _poses.py" >&2
 
       - name: Install build tooling
-        run: pip install build twine
+        run: pip install -U build twine
 
       - name: Build
         run: python -m build
