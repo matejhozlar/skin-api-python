@@ -3,6 +3,17 @@
 This changelog tracks the Createrington Skin API Python SDK. A release publishes
 to PyPI when a version bump is merged to `main`.
 
+## v2.8.0
+
+### Added
+
+- New pose in the known pose list, refreshed from the published OpenAPI
+  contract: `engineer` (30 poses total), the first pose rendered with props
+  (a Create wrench in hand and engineer goggles on the head). The server
+  already accepted it, since the render methods take any pose string; this
+  release adds the name to `Poses` / `KNOWN_POSES` / `KnownPose` for static
+  checking and completion. Additive and non-breaking.
+
 ## v2.7.0
 
 ### Added
