@@ -16,6 +16,7 @@ KNOWN_POSES: tuple[str, ...] = (
     "dab",
     "dead",
     "defeat",
+    "delivery",
     "engineer",
     "friendship",
     "gaze",
@@ -28,8 +29,10 @@ KNOWN_POSES: tuple[str, ...] = (
     "ninja",
     "point",
     "ponder",
+    "pressed",
     "relaxed",
     "scared",
+    "snagged",
     "sprint",
     "tiptoe",
     "victory",
@@ -49,6 +52,7 @@ KnownPose = Literal[
     "dab",
     "dead",
     "defeat",
+    "delivery",
     "engineer",
     "friendship",
     "gaze",
@@ -61,8 +65,10 @@ KnownPose = Literal[
     "ninja",
     "point",
     "ponder",
+    "pressed",
     "relaxed",
     "scared",
+    "snagged",
     "sprint",
     "tiptoe",
     "victory",
@@ -85,6 +91,7 @@ class Poses:
     dab = "dab"
     dead = "dead"
     defeat = "defeat"
+    delivery = "delivery"
     engineer = "engineer"
     friendship = "friendship"
     gaze = "gaze"
@@ -97,8 +104,10 @@ class Poses:
     ninja = "ninja"
     point = "point"
     ponder = "ponder"
+    pressed = "pressed"
     relaxed = "relaxed"
     scared = "scared"
+    snagged = "snagged"
     sprint = "sprint"
     tiptoe = "tiptoe"
     victory = "victory"
