@@ -3,6 +3,18 @@
 This changelog tracks the Createrington Skin API Python SDK. A release publishes
 to PyPI when a version bump is merged to `main`.
 
+## v2.9.0
+
+### Added
+
+- Three new poses in the known pose list, refreshed from the published OpenAPI
+  contract: `snagged`, `pressed`, and `delivery` (33 poses total), all built
+  around Create machine props (a mechanical arm, a mechanical press, and a
+  stack of cardboard packages). The server already accepted them, since the
+  render methods take any pose string; this release adds the names to
+  `Poses` / `KNOWN_POSES` / `KnownPose` for static checking and completion.
+  Additive and non-breaking.
+
 ## v2.8.0
 
 ### Added
