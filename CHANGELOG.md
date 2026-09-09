@@ -3,6 +3,19 @@
 This changelog tracks the Createrington Skin API Python SDK. A release publishes
 to PyPI when a version bump is merged to `main`.
 
+## v2.10.0
+
+### Added
+
+- Three new poses in the known pose list, refreshed from the published OpenAPI
+  contract: `diver`, `airborne`, and `toasty` (36 poses total), all built
+  around Create props (a copper diving helmet, backtank and boots; an encased
+  fan; a lit blaze burner), with the fan airflow and burner smoke drawn as
+  camera-facing particle sprites. The server already accepted them, since the
+  render methods take any pose string; this release adds the names to
+  `Poses` / `KNOWN_POSES` / `KnownPose` for static checking and completion.
+  Additive and non-breaking.
+
 ## v2.9.0
 
 ### Added
