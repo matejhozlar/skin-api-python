@@ -9,7 +9,7 @@ from .client import SkinApiClient
 from .errors import SkinApiError, SkinApiErrorCode
 from .poses import random_pose
 
-__version__ = "2.10.0"
+__version__ = "2.11.0"
 
 __all__ = [
     "AsyncSkinApiClient",

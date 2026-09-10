@@ -6,6 +6,7 @@ from typing import Literal
 
 KNOWN_POSES: tuple[str, ...] = (
     "airborne",
+    "boxed",
     "britzel",
     "callout",
     "cheer",
@@ -20,6 +21,7 @@ KNOWN_POSES: tuple[str, ...] = (
     "delivery",
     "diver",
     "engineer",
+    "extended",
     "friendship",
     "gaze",
     "handstand",
@@ -34,6 +36,7 @@ KNOWN_POSES: tuple[str, ...] = (
     "pressed",
     "relaxed",
     "scared",
+    "shipped",
     "snagged",
     "sprint",
     "tiptoe",
@@ -45,6 +48,7 @@ KNOWN_POSES: tuple[str, ...] = (
 
 KnownPose = Literal[
     "airborne",
+    "boxed",
     "britzel",
     "callout",
     "cheer",
@@ -59,6 +63,7 @@ KnownPose = Literal[
     "delivery",
     "diver",
     "engineer",
+    "extended",
     "friendship",
     "gaze",
     "handstand",
@@ -73,6 +78,7 @@ KnownPose = Literal[
     "pressed",
     "relaxed",
     "scared",
+    "shipped",
     "snagged",
     "sprint",
     "tiptoe",
@@ -87,6 +93,7 @@ class Poses:
     """Named pose constants, for discoverability and autocompletion."""
 
     airborne = "airborne"
+    boxed = "boxed"
     britzel = "britzel"
     callout = "callout"
     cheer = "cheer"
@@ -101,6 +108,7 @@ class Poses:
     delivery = "delivery"
     diver = "diver"
     engineer = "engineer"
+    extended = "extended"
     friendship = "friendship"
     gaze = "gaze"
     handstand = "handstand"
@@ -115,6 +123,7 @@ class Poses:
     pressed = "pressed"
     relaxed = "relaxed"
     scared = "scared"
+    shipped = "shipped"
     snagged = "snagged"
     sprint = "sprint"
     tiptoe = "tiptoe"
