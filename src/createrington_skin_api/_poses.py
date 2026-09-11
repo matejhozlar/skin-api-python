@@ -22,12 +22,15 @@ KNOWN_POSES: tuple[str, ...] = (
     "diver",
     "engineer",
     "extended",
+    "fired",
     "friendship",
     "gaze",
+    "glazed",
     "handstand",
     "idle",
     "idol",
     "kneel",
+    "licked",
     "lounge",
     "mojavatar",
     "ninja",
@@ -64,12 +67,15 @@ KnownPose = Literal[
     "diver",
     "engineer",
     "extended",
+    "fired",
     "friendship",
     "gaze",
+    "glazed",
     "handstand",
     "idle",
     "idol",
     "kneel",
+    "licked",
     "lounge",
     "mojavatar",
     "ninja",
@@ -109,12 +115,15 @@ class Poses:
     diver = "diver"
     engineer = "engineer"
     extended = "extended"
+    fired = "fired"
     friendship = "friendship"
     gaze = "gaze"
+    glazed = "glazed"
     handstand = "handstand"
     idle = "idle"
     idol = "idol"
     kneel = "kneel"
+    licked = "licked"
     lounge = "lounge"
     mojavatar = "mojavatar"
     ninja = "ninja"
