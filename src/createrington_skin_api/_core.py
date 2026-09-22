@@ -128,6 +128,7 @@ def prepare_render(
     png: bytes | bytearray | memoryview | None,
     slim: bool | None,
     outline: bool | None,
+    style: str | None,
     width: int | None,
     height: int | None,
 ) -> PreparedRequest:
@@ -147,6 +148,8 @@ def prepare_render(
     # for non-outline calls is unchanged.
     if outline:
         params["outline"] = "true"
+    if style and style != "default":
+        params["style"] = style
     if width is not None:
         params["width"] = str(width)
     if height is not None:
