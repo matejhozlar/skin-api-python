@@ -77,6 +77,7 @@ client.render(
     # options:
     slim=None,             # override slim/Alex arm geometry; default uses skin metadata
     outline=False,         # draw an outline around the skin; default off
+    style="default",       # "default" or "cel" (cel shading with ink lines over the skin's pixels)
     width=None,            # default 400 (64..2048)
     height=None,           # default 600 (64..2048)
 ) -> bytes

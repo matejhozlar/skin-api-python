@@ -76,6 +76,7 @@ class AsyncSkinApiClient:
         png: bytes | bytearray | memoryview | None = None,
         slim: bool | None = None,
         outline: bool = False,
+        style: str = "default",
         width: int | None = None,
         height: int | None = None,
     ) -> bytes:
@@ -94,6 +95,9 @@ class AsyncSkinApiClient:
             png: Raw 64x64 PNG bytes, sent as ``multipart/form-data``.
             slim: Force slim (Alex) arm geometry; defaults to the skin's metadata.
             outline: Draw an outline around the rendered skin. Defaults to off.
+            style: ``"default"`` for the stock render or ``"cel"`` for cel
+                shading with ink lines over the skin's own pixels. Combines
+                with ``outline``. Defaults to ``"default"``.
             width: Output width in pixels (default 400, clamped 64..2048).
             height: Output height in pixels (default 600, clamped 64..2048).
 
@@ -114,6 +118,7 @@ class AsyncSkinApiClient:
             png=png,
             slim=slim,
             outline=outline,
+            style=style,
             width=width,
             height=height,
         )

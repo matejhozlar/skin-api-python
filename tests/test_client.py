@@ -110,6 +110,26 @@ def test_sends_get_query_for_username() -> None:
     assert request.content == b""
 
 
+def test_style_cel_sends_style_param() -> None:
+    captured: list[httpx.Request] = []
+    client = make_client(png_handler(captured))
+    client.render("wave", uuid="uuid-1", style="cel")
+    assert dict(captured[0].url.params) == {
+        "pose": "wave",
+        "style": "cel",
+        "uuid": "uuid-1",
+    }
+
+
+def test_style_default_omitted() -> None:
+    captured: list[httpx.Request] = []
+    client = make_client(png_handler(captured))
+    client.render("wave", uuid="uuid-1", style="default")
+    client.render("wave", uuid="uuid-1")
+    assert "style" not in dict(captured[0].url.params)
+    assert "style" not in dict(captured[1].url.params)
+
+
 def test_outline_true_sends_outline_param() -> None:
     captured: list[httpx.Request] = []
     client = make_client(png_handler(captured))
