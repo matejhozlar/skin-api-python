@@ -3,6 +3,18 @@
 This changelog tracks the Createrington Skin API Python SDK. A release publishes
 to PyPI when a version bump is merged to `main`.
 
+## v2.15.0
+
+### Added
+
+- Two new poses in the known pose list, refreshed from the published OpenAPI
+  contract: `cuckooed` and `railroaded` (44 poses total), both built around
+  Create props (recoiling from a smoking cuckoo clock as the cuckoo pops out;
+  tied up on a train track with a locomotive right behind). The server already
+  accepted them, since the render methods take any pose string; this release
+  adds the names to `Poses` / `KNOWN_POSES` / `KnownPose` for static checking
+  and completion. Additive and non-breaking.
+
 ## v2.14.0
 
 ### Added
