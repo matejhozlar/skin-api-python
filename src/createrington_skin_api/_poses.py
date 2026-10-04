@@ -13,6 +13,7 @@ KNOWN_POSES: tuple[str, ...] = (
     "confidence",
     "crossed",
     "crouching",
+    "cuckooed",
     "curl",
     "cute",
     "dab",
@@ -37,6 +38,7 @@ KNOWN_POSES: tuple[str, ...] = (
     "point",
     "ponder",
     "pressed",
+    "railroaded",
     "relaxed",
     "scared",
     "shipped",
@@ -58,6 +60,7 @@ KnownPose = Literal[
     "confidence",
     "crossed",
     "crouching",
+    "cuckooed",
     "curl",
     "cute",
     "dab",
@@ -82,6 +85,7 @@ KnownPose = Literal[
     "point",
     "ponder",
     "pressed",
+    "railroaded",
     "relaxed",
     "scared",
     "shipped",
@@ -106,6 +110,7 @@ class Poses:
     confidence = "confidence"
     crossed = "crossed"
     crouching = "crouching"
+    cuckooed = "cuckooed"
     curl = "curl"
     cute = "cute"
     dab = "dab"
@@ -130,6 +135,7 @@ class Poses:
     point = "point"
     ponder = "ponder"
     pressed = "pressed"
+    railroaded = "railroaded"
     relaxed = "relaxed"
     scared = "scared"
     shipped = "shipped"
